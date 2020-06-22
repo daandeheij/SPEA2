@@ -17,7 +17,7 @@ class MOKnapsack(BinaryProblem):
     """ Class representing MO Knapsack Problem. """
 
     def __init__(self, number_of_items: int = 50, capacity: float = 1000, weights: list = None,
-                 v1: list = None, v2: list = None, from_file: bool = False, filename: str = None, run_id = 0, heavy_init = False):
+                 v1: list = None, v2: list = None, from_file: bool = False, filename: str = None, run_id = 0, pop_size = 0, heavy_init = False):
         super(MOKnapsack, self).__init__()
 
         if from_file:
@@ -39,6 +39,7 @@ class MOKnapsack(BinaryProblem):
         self.debug = []
         self.v1_sum = sum(self.v1)
         self.v2_sum = sum(self.v2)
+        self.pop_size = pop_size
 
         if self.heavy_init:
             self.mean_weight = np.mean(self.weights)

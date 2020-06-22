@@ -14,7 +14,7 @@ from jmetal.util.solution import get_non_dominated_solutions
 
 class SaveFrontToDictionaryObserver(Observer):
 
-    def __init__(self, step: int, filename: str, take_archive_front=True) -> None:
+    def __init__(self, step: int, filename: str, inner_tag: str, take_archive_front=True) -> None:
         """ Show the number of evaluations, best fitness and computing time.
 
         :param frequency: Display frequency. """
@@ -23,6 +23,7 @@ class SaveFrontToDictionaryObserver(Observer):
         self.file_str = self.filename + '.json'
         self.dic = {}
         self.take_archive_front = take_archive_front
+        self.inner_tag = inner_tag
 
     def update(self, *args, **kwargs):
 
@@ -50,7 +51,14 @@ class SaveFrontToDictionaryObserver(Observer):
                 xy = (-1 * sol.objectives[0],-1 * sol.objectives[1])
                 tuple_list.append(xy)
 
-            self.dic[run_id][evaluations] = tuple_list
+            if self.inner_tag == 'quality':
+                self.dic[run_id][evaluations] = tuple_list
+            elif self.inner_tag == 'prob_size':
+                self.dic[run_id][problem.number_of_bits] = tuple_list
+            elif self.inner_tag == 'pop_size':
+                self.dic[run_id][problem.pop_size] = tuple_list
+            else:
+                raise RuntimeError("no valid inner tag specified...")
 
 
 

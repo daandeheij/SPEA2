@@ -144,28 +144,157 @@ def configure_experiment():
 def quality_dense():
 
     dic = {}
-    fracs = []
-    for i in range(2):
-        prob = MOKnapsack(from_file=True, filename='instances/dense/1280.txt', heavy_init=False, run_id = i)
-        print("run: %d" % i)
-        max_eval = 1000
+    for i in range(10):
+        prob = MOKnapsack(from_file=True, filename='instances/dense/80.txt', heavy_init=False, run_id=i)
+        print("Quality dense, run: %d" % i)
+        max_eval = 100000
         algorithm = SPEA2a(
             problem=prob,
-            population_size=50,
-            offspring_population_size=50,
-            mutation=BitFlipMutation(probability=0.01),
+            population_size=20,
+            offspring_population_size=20,
+            mutation=BitFlipMutation(probability=0.05),
             crossover=SPXCrossover(probability=0.8),
             termination_criterion=StoppingByEvaluations(max_eval),
         )
         progress_bar = ProgressBarObserver(max=max_eval)
-        dic_saver = SaveFrontToDictionaryObserver(1, 'quality_test', take_archive_front = True)
+        dic_saver = SaveFrontToDictionaryObserver(1000, 'quality_test', take_archive_front=True, inner_tag='quality')
         algorithm.observable.register(dic_saver)
         algorithm.observable.register(progress_bar)
         algorithm.run()
         dic.update(dic_saver.dic)
-        #hypervolume = HyperVolume([0, 0])
-        #fracs.append(calc_utopian_hv_fraction(algorithm.archive.solution_list, prob, hypervolume))
-    dic_to_json(dic, 'quality.json')
+    dic_to_json(dic, 'quality_dense.json')
+
+def quality_sparse():
+
+    dic = {}
+    for i in range(10):
+        prob = MOKnapsack(from_file=True, filename='instances/sparse/80.txt', heavy_init=False, run_id=i)
+        print("Quality sparse, run: %d" % i)
+        max_eval = 100000
+        algorithm = SPEA2a(
+            problem=prob,
+            population_size=20,
+            offspring_population_size=20,
+            mutation=BitFlipMutation(probability=0.05),
+            crossover=SPXCrossover(probability=0.8),
+            termination_criterion=StoppingByEvaluations(max_eval),
+        )
+        progress_bar = ProgressBarObserver(max=max_eval)
+        dic_saver = SaveFrontToDictionaryObserver(1000, 'quality_test', take_archive_front=True, inner_tag='quality')
+        algorithm.observable.register(dic_saver)
+        algorithm.observable.register(progress_bar)
+        algorithm.run()
+        dic.update(dic_saver.dic)
+    dic_to_json(dic, 'quality_sparse.json')
+
+def scalability_dense():
+    for i in range(10):
+        prob_sizes = [10, 20, 40, 80, 160, 320, 640, 1280]
+        for prob_size in prob_sizes:
+
+            dic = {}
+
+            prob = MOKnapsack(from_file=True, filename='instances/dense/%s.txt' % prob_size, heavy_init=False, run_id=i)
+            print("Scalability dense, run: %d, N: %d" % (i, prob_size))
+            max_eval = 100000
+            algorithm = SPEA2a(
+                problem=prob,
+                population_size=20,
+                offspring_population_size=20,
+                mutation=BitFlipMutation(probability=0.05),
+                crossover=SPXCrossover(probability=0.8),
+                termination_criterion=StoppingByEvaluations(max_eval),
+            )
+            progress_bar = ProgressBarObserver(max=max_eval)
+            dic_saver = SaveFrontToDictionaryObserver(100000, 'quality_test', take_archive_front=True, inner_tag='prob_size')
+            algorithm.observable.register(dic_saver)
+            algorithm.observable.register(progress_bar)
+            algorithm.run()
+            dic.update(dic_saver.dic)
+    dic_to_json(dic, 'scalability_problem_size_dense.json')
+
+def scalability_sparse():
+    for i in range(10):
+        prob_sizes = [10, 20, 40, 80, 160, 320, 640, 1280]
+        for prob_size in prob_sizes:
+            dic = {}
+
+            prob = MOKnapsack(from_file=True, filename='instances/dense/%s.txt' % prob_size, heavy_init=False,
+                              run_id=i)
+            print("Scalability sparse, run: %d, N: %d" % (i, prob_size))
+            max_eval = 100000
+            algorithm = SPEA2a(
+                problem=prob,
+                population_size=20,
+                offspring_population_size=20,
+                mutation=BitFlipMutation(probability=0.05),
+                crossover=SPXCrossover(probability=0.8),
+                termination_criterion=StoppingByEvaluations(max_eval),
+            )
+            progress_bar = ProgressBarObserver(max=max_eval)
+            dic_saver = SaveFrontToDictionaryObserver(100000, 'quality_test', take_archive_front=True,
+                                                      inner_tag='prob_size')
+            algorithm.observable.register(dic_saver)
+            algorithm.observable.register(progress_bar)
+            algorithm.run()
+            dic.update(dic_saver.dic)
+    dic_to_json(dic, 'scalability_problem_size_sparse.json')
+
+def pop_size_dense():
+    for i in range(10):
+        pop_sizes = [8, 16, 32, 64, 128, 256, 512, 1024, 2048]
+        for pop_size in pop_sizes:
+            dic = {}
+
+            prob = MOKnapsack(from_file=True, filename='instances/dense/80.txt', heavy_init=False,
+                              run_id=i, pop_size = pop_size)
+            print("Scalability population dense, run: %d, pop_size: %d" % (i, pop_size))
+            max_eval = 100000
+            algorithm = SPEA2a(
+                problem=prob,
+                population_size=pop_size,
+                offspring_population_size=pop_size,
+                mutation=BitFlipMutation(probability=0.05),
+                crossover=SPXCrossover(probability=0.8),
+                termination_criterion=StoppingByEvaluations(max_eval),
+            )
+            progress_bar = ProgressBarObserver(max=max_eval)
+            dic_saver = SaveFrontToDictionaryObserver(9216, 'quality_test', take_archive_front=True,
+                                                      inner_tag='pop_size')
+            algorithm.observable.register(dic_saver)
+            algorithm.observable.register(progress_bar)
+            algorithm.run()
+            dic.update(dic_saver.dic)
+    dic_to_json(dic, 'scalability_population_size_dense.json')
+
+def pop_size_sparse():
+    for i in range(10):
+        pop_sizes = [8, 16, 32, 64, 128, 256, 512, 1024, 2048]
+        for pop_size in pop_sizes:
+            dic = {}
+
+            prob = MOKnapsack(from_file=True, filename='instances/sparse/80.txt', heavy_init=False,
+                              run_id=i, pop_size = pop_size)
+            print("Scalability population dense, run: %d, pop_size: %d" % (i, pop_size))
+            max_eval = 100000
+            algorithm = SPEA2a(
+                problem=prob,
+                population_size=pop_size,
+                offspring_population_size=pop_size,
+                mutation=BitFlipMutation(probability=0.05),
+                crossover=SPXCrossover(probability=0.8),
+                termination_criterion=StoppingByEvaluations(max_eval),
+            )
+            progress_bar = ProgressBarObserver(max=max_eval)
+            dic_saver = SaveFrontToDictionaryObserver(9216, 'quality_test', take_archive_front=True,
+                                                      inner_tag='pop_size')
+            algorithm.observable.register(dic_saver)
+            algorithm.observable.register(progress_bar)
+            algorithm.run()
+            dic.update(dic_saver.dic)
+    dic_to_json(dic, 'scalability_population_size_sparse.json')
+
+
 
 
 if __name__ == '__main__':
