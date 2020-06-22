@@ -16,8 +16,10 @@ from EA_utils import *
 
 def qualityExperiment():
 
+    dic = {}
+    fracs = []
     for i in range(2):
-        prob = MOKnapsack(from_file=True, filename='instances/dense/80.txt', heavy_init=False, run_id = i)
+        prob = MOKnapsack(from_file=True, filename='instances/dense/20.txt', heavy_init=False, run_id = i)
         print("run: %d" % i)
         max_eval = 5000
         algorithm = SPEA2a(
@@ -26,12 +28,18 @@ def qualityExperiment():
             offspring_population_size=100,
             mutation=BitFlipMutation(probability=0.006),
             crossover=SPXCrossover(probability=1.0),
-            termination_criterion=StoppingByEvaluations(max_eval)
+            termination_criterion=StoppingByEvaluations(max_eval),
+            archive_step = 1
         )
         progress_bar = ProgressBarObserver(max=max_eval)
-        dic_saver = SaveFrontToDictionaryObserver(1, 'quality_test')
+        dic_saver = SaveFrontToDictionaryObserver(1, 'quality_test', take_archive_front = True)
         algorithm.observable.register(dic_saver)
+        algorithm.observable.register(progress_bar)
         algorithm.run()
+        dic.update(dic_saver.dic)
+        hypervolume = HyperVolume([0, 0])
+        fracs.append(calc_utopian_hv_fraction(algorithm.archive.solution_list, prob, hypervolume))
+    dic_to_file(dic, 'quality.json')
 
 def test():
     prob = MOKnapsack(from_file = True, filename ='instances/dense/20.txt', heavy_init=True)

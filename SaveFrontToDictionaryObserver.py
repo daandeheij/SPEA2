@@ -29,19 +29,19 @@ class SaveFrontToDictionaryObserver(Observer):
         evaluations = kwargs['EVALUATIONS']
         solutions = kwargs['SOLUTIONS']
         problem = kwargs['PROBLEM']
-        archive = kwargs['ARCHIVE']
         run_id = str(problem.run_id)
 
         if (evaluations % self.step_size) == 0 and solutions:
-            if os.path.isfile(self.file_str):
-                with open(self.file_str, 'r') as input_file:
-                    self.dic = json.load(input_file)
-                    input_file.close()
+            # if os.path.isfile(self.file_str):
+            #     with open(self.file_str, 'r') as input_file:
+            #         self.dic = json.load(input_file)
+            #         input_file.close()
 
             if run_id not in self.dic:
                 self.dic[run_id] = {}
 
             if self.take_archive_front:
+                archive = kwargs['ARCHIVE']
                 front = archive.solution_list
             else:
                 front = get_non_dominated_solutions(solutions)
@@ -52,8 +52,8 @@ class SaveFrontToDictionaryObserver(Observer):
 
             self.dic[run_id][evaluations] = tuple_list
 
-            with open(self.file_str, 'w') as file:
-                json.dump(self.dic, file)
+           # with open(self.file_str, 'w') as file:
+           #     json.dump(self.dic, file)
 
 
 

@@ -16,4 +16,8 @@ def calc_utopian_hv_fraction(solutions, problem, hypervolume):
     front_hv = hypervolume.compute(np.array(objectives))
     return front_hv / utopian_hv
 
+def dic_to_json(dic, filename):
+    with open(filename, 'w') as file:
+        json.dump(dic, file)
+
 
