@@ -10,13 +10,14 @@ from jmetal.core.quality_indicator import HyperVolume
 from jmetal.lab.visualization import Plot
 from jmetal.util.solution import get_non_dominated_solutions
 from SaveFrontToDictionaryObserver import SaveFrontToDictionaryObserver
+from SPEA2a import SPEA2a
 
 
 def test():
     prob = MOKnapsack(from_file = True, filename ='instances/dense/10.txt', heavy_init=True)
 
     max_eval = 100
-    algorithm = SPEA2(
+    algorithm = SPEA2a(
         problem=prob,
         population_size=40,
         offspring_population_size=40,
@@ -33,6 +34,7 @@ def test():
     algorithm.observable.register(basic_obs)
 
     algorithm.run()
+    print('yo')
 
 def experiment():
     jobss = configure_experiment()

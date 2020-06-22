@@ -14,7 +14,7 @@ from jmetal.util.solution import get_non_dominated_solutions
 
 class SaveFrontToDictionaryObserver(Observer):
 
-    def __init__(self, step: int, filename: str) -> None:
+    def __init__(self, step: int, filename: str, take_archive_front=True) -> None:
         """ Show the number of evaluations, best fitness and computing time.
 
         :param frequency: Display frequency. """
@@ -22,12 +22,14 @@ class SaveFrontToDictionaryObserver(Observer):
         self.filename = filename
         self.file_str = self.filename + '.json'
         self.dic = {}
+        self.take_archive_front = take_archive_front
 
     def update(self, *args, **kwargs):
 
         evaluations = kwargs['EVALUATIONS']
         solutions = kwargs['SOLUTIONS']
         problem = kwargs['PROBLEM']
+        archive = kwargs['ARCHIVE']
         run_id = str(problem.run_id)
 
         if (evaluations % self.step_size) == 0 and solutions:
@@ -39,7 +41,10 @@ class SaveFrontToDictionaryObserver(Observer):
             if run_id not in self.dic:
                 self.dic[run_id] = {}
 
-            front = get_non_dominated_solutions(solutions)
+            if self.take_archive_front:
+                front = archive.solution_list
+            else:
+                front = get_non_dominated_solutions(solutions)
             tuple_list = []
             for sol in front:
                 xy = (-1 * sol.objectives[0],-1 * sol.objectives[1])
