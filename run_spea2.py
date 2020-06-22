@@ -275,7 +275,7 @@ def pop_size_sparse():
 
             prob = MOKnapsack(from_file=True, filename='instances/sparse/80.txt', heavy_init=False,
                               run_id=i, pop_size = pop_size)
-            print("Scalability population dense, run: %d, pop_size: %d" % (i, pop_size))
+            print("Scalability population sparse, run: %d, pop_size: %d" % (i, pop_size))
             max_eval = 100000
             algorithm = SPEA2a(
                 problem=prob,
@@ -294,8 +294,62 @@ def pop_size_sparse():
             dic.update(dic_saver.dic)
     dic_to_json(dic, 'scalability_population_size_sparse.json')
 
+def exploration_dense():
+
+    dic = {}
+
+    prob = MOKnapsack(from_file=True, filename='instances/dense/80.txt', heavy_init=False, run_id=0)
+    print("Exploration dense")
+    max_eval = 100000
+    algorithm = SPEA2a(
+        problem=prob,
+        population_size=20,
+        offspring_population_size=20,
+        mutation=BitFlipMutation(probability=0.05),
+        crossover=SPXCrossover(probability=0.8),
+        termination_criterion=StoppingByEvaluations(max_eval),
+    )
+    progress_bar = ProgressBarObserver(max=max_eval)
+    dic_saver = SaveFrontToDictionaryObserver(1, 'quality_test', take_archive_front=True, inner_tag='quality')
+    algorithm.observable.register(dic_saver)
+    algorithm.observable.register(progress_bar)
+    algorithm.run()
+    dic.update(dic_saver.dic)
+    dic_to_json(dic, 'exploration_dense.json')
+
+def exploration_sparse():
+
+    dic = {}
+
+    prob = MOKnapsack(from_file=True, filename='instances/sparse/80.txt', heavy_init=False, run_id=0)
+    print("Exploration sparse")
+    max_eval = 100000
+    algorithm = SPEA2a(
+        problem=prob,
+        population_size=20,
+        offspring_population_size=20,
+        mutation=BitFlipMutation(probability=0.05),
+        crossover=SPXCrossover(probability=0.8),
+        termination_criterion=StoppingByEvaluations(max_eval),
+    )
+    progress_bar = ProgressBarObserver(max=max_eval)
+    dic_saver = SaveFrontToDictionaryObserver(1, 'quality_test', take_archive_front=True, inner_tag='quality')
+    algorithm.observable.register(dic_saver)
+    algorithm.observable.register(progress_bar)
+    algorithm.run()
+    dic.update(dic_saver.dic)
+    dic_to_json(dic, 'exploration_sparse.json')
+
 
 
 
 if __name__ == '__main__':
-    qualityExperiment()
+    quality_dense()
+    quality_sparse()
+    exploration_dense()
+    exploration_sparse()
+    scalability_dense()
+    scalability_sparse()
+    pop_size_dense()
+    pop_size_sparse()
+
