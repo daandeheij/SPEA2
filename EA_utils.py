@@ -1,6 +1,7 @@
 from jmetal.util.solution import get_non_dominated_solutions
 import numpy as np
 from jmetal.core.quality_indicator import HyperVolume
+import json
 
 
 def invert_objectives(solutions):

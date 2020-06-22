@@ -52,8 +52,5 @@ class SaveFrontToDictionaryObserver(Observer):
 
             self.dic[run_id][evaluations] = tuple_list
 
-           # with open(self.file_str, 'w') as file:
-           #     json.dump(self.dic, file)
-
 
 

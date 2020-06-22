@@ -32,8 +32,7 @@ class SPEA2a(SPEA2[S, R]):
                  termination_criterion: TerminationCriterion = store.default_termination_criteria,
                  population_generator: Generator = store.default_generator,
                  population_evaluator: Evaluator = store.default_evaluator,
-                 dominance_comparator: Comparator = store.default_comparator,
-                 archive_step = 10 ):
+                 dominance_comparator: Comparator = store.default_comparator):
 
         multi_comparator = MultiComparator([StrengthRanking.get_comparator(),
                                             KNearestNeighborDensityEstimator.get_comparator()])

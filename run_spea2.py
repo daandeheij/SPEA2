@@ -19,27 +19,26 @@ def qualityExperiment():
     dic = {}
     fracs = []
     for i in range(2):
-        prob = MOKnapsack(from_file=True, filename='instances/dense/20.txt', heavy_init=False, run_id = i)
+        prob = MOKnapsack(from_file=True, filename='instances/sparse/80.txt', heavy_init=False, run_id = i)
         print("run: %d" % i)
-        max_eval = 5000
+        max_eval = 3000
         algorithm = SPEA2a(
             problem=prob,
-            population_size=100,
-            offspring_population_size=100,
-            mutation=BitFlipMutation(probability=0.006),
-            crossover=SPXCrossover(probability=1.0),
+            population_size=20,
+            offspring_population_size=20,
+            mutation=BitFlipMutation(probability=0.05),
+            crossover=SPXCrossover(probability=0.8),
             termination_criterion=StoppingByEvaluations(max_eval),
-            archive_step = 1
         )
         progress_bar = ProgressBarObserver(max=max_eval)
-        dic_saver = SaveFrontToDictionaryObserver(1, 'quality_test', take_archive_front = True)
+        dic_saver = SaveFrontToDictionaryObserver(1000, 'quality_test', take_archive_front = True)
         algorithm.observable.register(dic_saver)
         algorithm.observable.register(progress_bar)
         algorithm.run()
         dic.update(dic_saver.dic)
         hypervolume = HyperVolume([0, 0])
         fracs.append(calc_utopian_hv_fraction(algorithm.archive.solution_list, prob, hypervolume))
-    dic_to_file(dic, 'quality.json')
+    dic_to_json(dic, 'quality.json')
 
 def test():
     prob = MOKnapsack(from_file = True, filename ='instances/dense/20.txt', heavy_init=True)
@@ -50,7 +49,7 @@ def test():
         population_size=40,
         offspring_population_size=40,
         mutation=BitFlipMutation(probability=0.006),
-        crossover=SPXCrossover(probability=1.0),
+        crossover=SPXCrossover(probability=0.8),
         termination_criterion=StoppingByEvaluations(max_eval)
     )
 
@@ -141,6 +140,32 @@ def configure_experiment():
         )
 
     return jobs
+
+def quality_dense():
+
+    dic = {}
+    fracs = []
+    for i in range(2):
+        prob = MOKnapsack(from_file=True, filename='instances/dense/1280.txt', heavy_init=False, run_id = i)
+        print("run: %d" % i)
+        max_eval = 1000
+        algorithm = SPEA2a(
+            problem=prob,
+            population_size=50,
+            offspring_population_size=50,
+            mutation=BitFlipMutation(probability=0.01),
+            crossover=SPXCrossover(probability=0.8),
+            termination_criterion=StoppingByEvaluations(max_eval),
+        )
+        progress_bar = ProgressBarObserver(max=max_eval)
+        dic_saver = SaveFrontToDictionaryObserver(1, 'quality_test', take_archive_front = True)
+        algorithm.observable.register(dic_saver)
+        algorithm.observable.register(progress_bar)
+        algorithm.run()
+        dic.update(dic_saver.dic)
+        #hypervolume = HyperVolume([0, 0])
+        #fracs.append(calc_utopian_hv_fraction(algorithm.archive.solution_list, prob, hypervolume))
+    dic_to_json(dic, 'quality.json')
 
 
 if __name__ == '__main__':
