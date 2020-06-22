@@ -37,11 +37,13 @@ class MOKnapsack(BinaryProblem):
         self.MAX_VALUE = 2147483648
         self.heavy_init = heavy_init
         self.debug = []
+        self.v1_sum = sum(self.v1)
+        self.v2_sum = sum(self.v2)
 
         if self.heavy_init:
             self.mean_weight = np.mean(self.weights)
-            self.mean_items = int(np.round((self.capacity / self.mean_weight) * 0.90))
-            self.heavy_prob = self.mean_items / self.number_of_bits
+            self.mean_items = int(np.round((self.capacity / self.mean_weight)))
+            self.heavy_prob = (self.mean_items / self.number_of_bits) * 1
 
     def __read_from_file(self, filename: str):
         """
