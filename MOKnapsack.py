@@ -85,11 +85,8 @@ class MOKnapsack(BinaryProblem):
                 total_weights += self.weights[index]
 
         if total_weights > self.capacity:
-            #total_v1 = -1.0 * self.MAX_VALUE
-            #total_v2 = -1.0 * self.MAX_VALUE
-
-            total_v1 = 0
-            total_v2 = 0
+            total_v1 = -1.0 * self.MAX_VALUE
+            total_v2 = -1.0 * self.MAX_VALUE
 
         solution.objectives[0] = -1.0 * total_v1
         solution.objectives[1] = -1.0 * total_v2

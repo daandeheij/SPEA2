@@ -19,50 +19,57 @@ def qualityExperiment():
     dic = {}
     fracs = []
     for i in range(2):
-        prob = MOKnapsack(from_file=True, filename='instances/sparse/80.txt', heavy_init=False, run_id = i)
+        prob = MOKnapsack(from_file=True, filename='instances/dense/80.txt', heavy_init=False, run_id = i)
         print("run: %d" % i)
-        max_eval = 3000
-        algorithm = SPEA2a(
+        max_eval = 100000
+        algorithm = SPEA2(
             problem=prob,
             population_size=20,
             offspring_population_size=20,
-            mutation=BitFlipMutation(probability=0.05),
+            mutation=BitFlipMutation(probability=0.01),
             crossover=SPXCrossover(probability=0.8),
             termination_criterion=StoppingByEvaluations(max_eval),
         )
         progress_bar = ProgressBarObserver(max=max_eval)
-        dic_saver = SaveFrontToDictionaryObserver(1000, 'quality_test', take_archive_front = True)
-        algorithm.observable.register(dic_saver)
+        #dic_saver = SaveFrontToDictionaryObserver(1000, 'quality_test', take_archive_front = True, inner_tag='quality')
+        #algorithm.observable.register(dic_saver)
         algorithm.observable.register(progress_bar)
         algorithm.run()
-        dic.update(dic_saver.dic)
-        hypervolume = HyperVolume([0, 0])
-        fracs.append(calc_utopian_hv_fraction(algorithm.archive.solution_list, prob, hypervolume))
+        #dic.update(dic_saver.dic)
+        #hypervolume = HyperVolume([0, 0])
+        #fracs.append(calc_utopian_hv_fraction(algorithm.archive.solution_list, prob, hypervolume))
     dic_to_json(dic, 'quality.json')
 
 def test():
-    prob = MOKnapsack(from_file = True, filename ='instances/dense/20.txt', heavy_init=True)
+    from jmetal.algorithm.multiobjective.spea2 import SPEA2
+    from jmetal.operator import SBXCrossover, PolynomialMutation
+    from jmetal.problem import ZDT1
+    from jmetal.util.termination_criterion import StoppingByEvaluations
 
-    max_eval = 100
-    algorithm = SPEA2a(
-        problem=prob,
+    problem = ZDT1()
+
+    max_evaluations = 20000
+
+    algorithm = SPEA2(
+        problem=problem,
         population_size=40,
         offspring_population_size=40,
-        mutation=BitFlipMutation(probability=0.006),
-        crossover=SPXCrossover(probability=0.8),
-        termination_criterion=StoppingByEvaluations(max_eval)
+        mutation=PolynomialMutation(probability=1.0 / problem.number_of_variables, distribution_index=20),
+        crossover=SBXCrossover(probability=1.0, distribution_index=20),
+        termination_criterion=StoppingByEvaluations(max_evaluations)
     )
 
-    progress_bar = ProgressBarObserver(max=max_eval)
-    basic_obs = BasicObserver()
-    dic_saver = SaveFrontToDictionaryObserver(1, 'fronts')
-    algorithm.observable.register(dic_saver)
+
+
+    progress_bar = ProgressBarObserver(max=max_evaluations)
+    #basic_obs = BasicObserver()
+
     algorithm.observable.register(progress_bar)
-    algorithm.observable.register(basic_obs)
+    #algorithm.observable.register(basic_obs)
 
     algorithm.run()
-    hypervolume = HyperVolume([0, 0])
-    print(calc_utopian_hv_fraction(algorithm.archive.solution_list, prob, hypervolume))
+    #hypervolume = HyperVolume([0, 0])
+    #print(calc_utopian_hv_fraction(algorithm.archive.solution_list, prob, hypervolume))
 
 def archive_experiment():
     prob_h = MOKnapsack(from_file=True, filename='instances/dense/320.txt', heavy_init=True)
@@ -344,12 +351,14 @@ def exploration_sparse():
 
 
 if __name__ == '__main__':
-    quality_dense()
-    quality_sparse()
-    exploration_dense()
-    exploration_sparse()
-    scalability_dense()
-    scalability_sparse()
-    pop_size_dense()
-    pop_size_sparse()
+    test()
+
+    #quality_dense()
+    #quality_sparse()
+    #exploration_dense()
+    #exploration_sparse()
+    #scalability_dense()
+    #scalability_sparse()
+    #pop_size_dense()
+    #pop_size_sparse()
 
