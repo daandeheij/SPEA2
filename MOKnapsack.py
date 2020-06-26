@@ -2,6 +2,7 @@ import random
 
 import numpy as np
 import scipy
+import OR_knapsack
 
 from jmetal.core.problem import BinaryProblem
 from jmetal.core.solution import BinarySolution
@@ -18,7 +19,7 @@ class MOKnapsack(BinaryProblem):
     """ Class representing MO Knapsack Problem. """
 
     def __init__(self, number_of_items: int = 50, capacity: float = 1000, weights: list = None,
-                 v1: list = None, v2: list = None, from_file: bool = False, filename: str = None, run_id = 0, pop_size = 0, heavy_init = False):
+                 v1: list = None, v2: list = None, from_file: bool = False, filename: str = None, run_id = 0, pop_size = 0, heavy_init = False, SOOSI = False):
         super(MOKnapsack, self).__init__()
 
         if from_file:
@@ -42,9 +43,14 @@ class MOKnapsack(BinaryProblem):
         self.v2_sum = sum(self.v2)
         self.pop_size = pop_size
         self.bitprob = 0.5
+        self.SOOSI = SOOSI
+        self.solutions_generated = 0
 
         if self.heavy_init:
             self.bitprob = self.calc_bitprob()
+
+        if self.SOOSI:
+            self.SOOSI_solutions = self.get_SOOSI_solutions(filename)
 
     def __read_from_file(self, filename: str):
         """
@@ -119,6 +125,9 @@ class MOKnapsack(BinaryProblem):
         return new_solution
 
     def create_solution(self) -> BinarySolution:
+        if self.solutions_generated < 2:
+            self.solutions_generated += 1
+            return self.SOOSI_solutions[self.solutions_generated - 1]
         if self.heavy_init:
             return self.create_heavy_solution()
         else:
@@ -131,6 +140,15 @@ class MOKnapsack(BinaryProblem):
         while scipy.stats.norm.cdf(self.capacity, number_of_items_to_pick*mean, number_of_items_to_pick*var) < conf:
             number_of_items_to_pick -= 1
         return number_of_items_to_pick / self.number_of_bits
+
+    def get_SOOSI_solutions(self, filename):
+        solutions = []
+        OR_solver = OR_knapsack.OR_solver(filename = filename)
+        OR_solver.solve("v1")
+        solutions.append(OR_solver.best_solution)
+        OR_solver.solve("v2")
+        solutions.append(OR_solver.best_solution)
+        return solutions
 
 
 
