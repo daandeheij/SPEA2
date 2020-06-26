@@ -1,6 +1,7 @@
 import random
 
 import numpy as np
+import scipy
 
 from jmetal.core.problem import BinaryProblem
 from jmetal.core.solution import BinarySolution
@@ -40,11 +41,10 @@ class MOKnapsack(BinaryProblem):
         self.v1_sum = sum(self.v1)
         self.v2_sum = sum(self.v2)
         self.pop_size = pop_size
+        self.bitprob = 0.5
 
         if self.heavy_init:
-            self.mean_weight = np.mean(self.weights)
-            self.mean_items = int(np.round((self.capacity / self.mean_weight)))
-            self.heavy_prob = (self.mean_items / self.number_of_bits) * 1
+            self.bitprob = self.calc_bitprob()
 
     def __read_from_file(self, filename: str):
         """
@@ -113,16 +113,26 @@ class MOKnapsack(BinaryProblem):
         new_solution = BinarySolution(number_of_variables=self.number_of_variables,
                                       number_of_objectives=self.number_of_objectives)
 
-        new_solution.variables[0] = [True if random.random() < self.heavy_prob else False for _ in range(self.number_of_bits)]
+        new_solution.variables[0] = [True if random.random() < self.bitprob else False for _ in range(self.number_of_bits)]
 
         self.debug.append(self.get_weight(new_solution))
         return new_solution
 
     def create_solution(self) -> BinarySolution:
         if self.heavy_init:
-            return self.create_heavy_solution(0.1)
+            return self.create_heavy_solution()
         else:
             return self.create_random_solution()
+
+    def calc_bitprob(self):
+        conf = 0.9
+        mean, var = scipy.stats.distributions.norm.fit(self.prob.weights)
+        number_of_items_to_pick = self.number_of_bits
+        while scipy.stats.norm.cdf(self.capacity, number_of_items_to_pick*mean, number_of_items_to_pick*var) < conf:
+            number_of_items_to_pick -= 1
+        return number_of_items_to_pick / self.number_of_bits
+
+
 
     def get_name(self):
         return 'MO Knapsack'
